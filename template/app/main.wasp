@@ -192,6 +192,33 @@ action deleteConversation {
 }
 //#endregion
 
+//#region ThaiCopilot - Corrections & Sharing
+route CorrectConversationRoute { path: "/correct/:shareToken", to: CorrectConversationPage }
+page CorrectConversationPage {
+  component: import CorrectConversationPage from "@src/corrections/CorrectConversationPage"
+}
+
+action createConversationShare {
+  fn: import { createConversationShare } from "@src/corrections/operations",
+  entities: [Conversation, ConversationShare]
+}
+
+query getConversationByShareId {
+  fn: import { getConversationByShareId } from "@src/corrections/operations",
+  entities: [Conversation, Message, ConversationShare, Correction]
+}
+
+action createCorrection {
+  fn: import { createCorrection } from "@src/corrections/operations",
+  entities: [Message, Correction, ConversationShare]
+}
+
+query getCorrectionsByMessage {
+  fn: import { getCorrectionsByMessage } from "@src/corrections/operations",
+  entities: [Message, Correction, Conversation]
+}
+//#endregion
+
 //#region Demo AI App
 route DemoAppRoute { path: "/demo-app", to: DemoAppPage }
 page DemoAppPage {

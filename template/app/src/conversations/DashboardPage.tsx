@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from 'wasp/client/auth';
 import { useQuery } from 'wasp/client/operations';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createTranslation, getConversations } from 'wasp/client/operations';
+import { createTranslation, getConversations, createConversationShare } from 'wasp/client/operations';
 import { type Conversation, type Message } from 'wasp/entities';
 
 // Language options
@@ -340,9 +340,39 @@ export default function DashboardPage() {
 // Conversation Card Component
 function ConversationCard({ conversation }: { conversation: Conversation & { messages: Message[] } }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [shareLink, setShareLink] = useState<string | null>(null);
+  const [showShareToast, setShowShareToast] = useState(false);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 
   const firstMessage = conversation.messages[0];
   const messageCount = conversation.messages.length;
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (shareLink) {
+      // Copy existing link
+      await navigator.clipboard.writeText(shareLink);
+      setShowShareToast(true);
+      setTimeout(() => setShowShareToast(false), 2000);
+      return;
+    }
+
+    // Generate new share link
+    setIsGeneratingLink(true);
+    try {
+      const share = await createConversationShare({ conversationId: conversation.id });
+      const link = `${window.location.origin}/correct/${share.shareToken}`;
+      setShareLink(link);
+      await navigator.clipboard.writeText(link);
+      setShowShareToast(true);
+      setTimeout(() => setShowShareToast(false), 2000);
+    } catch (error) {
+      console.error('Error creating share link:', error);
+    } finally {
+      setIsGeneratingLink(false);
+    }
+  };
 
   if (!firstMessage) return null;
 
@@ -381,20 +411,56 @@ function ConversationCard({ conversation }: { conversation: Conversation & { mes
               {messageCount} {messageCount === 1 ? 'message' : 'messages'}
             </span>
           </div>
-          <motion.div
-            animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-slate-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          <div className="flex items-center space-x-2">
+            {/* Share Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleShare}
+              disabled={isGeneratingLink}
+              className="relative p-2 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-600 transition-colors disabled:opacity-50"
+              title="Share with Thai friend for corrections"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </motion.div>
+              {isGeneratingLink ? (
+                <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+              )}
+              {showShareToast && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute top-full right-0 mt-2 px-3 py-1 bg-green-600 text-white text-xs rounded-lg whitespace-nowrap shadow-lg z-10"
+                >
+                  Link copied!
+                </motion.div>
+              )}
+            </motion.button>
+            {/* Expand/Collapse */}
+            <motion.div
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-slate-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </motion.div>
+          </div>
         </div>
 
         {/* First Message Preview */}

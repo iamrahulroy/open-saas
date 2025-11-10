@@ -47,6 +47,7 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss": "^3.2.7",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.0.4",
     "vanilla-cookieconsent": "^3.0.1",
     "wasp": "file:.wasp/out/sdk/wasp",
     "zod": "^3.25.76"
@@ -57,6 +58,7 @@
     "@types/node": "^20.0.0",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.0.37",
+    "@types/uuid": "^10.0.0",
     "prisma": "5.19.1",
     "tsx": "^4.19.0",
     "typescript": "5.8.2",
