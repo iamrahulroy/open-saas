@@ -219,6 +219,44 @@ query getCorrectionsByMessage {
 }
 //#endregion
 
+//#region ThaiCopilot - Flashcards & Spaced Repetition
+route FlashcardsRoute { path: "/flashcards", to: FlashcardsPage }
+page FlashcardsPage {
+  authRequired: true,
+  component: import FlashcardsPage from "@src/flashcards/FlashcardsPage"
+}
+
+action generateFlashcardsFromMessage {
+  fn: import { generateFlashcardsFromMessage } from "@src/flashcards/operations",
+  entities: [User, Message, Flashcard]
+}
+
+query getFlashcardsByUser {
+  fn: import { getFlashcardsByUser } from "@src/flashcards/operations",
+  entities: [User, Flashcard, Message]
+}
+
+query getDueFlashcards {
+  fn: import { getDueFlashcards } from "@src/flashcards/operations",
+  entities: [User, Flashcard, Message]
+}
+
+action updateFlashcard {
+  fn: import { updateFlashcard } from "@src/flashcards/operations",
+  entities: [Flashcard]
+}
+
+action deleteFlashcard {
+  fn: import { deleteFlashcard } from "@src/flashcards/operations",
+  entities: [Flashcard]
+}
+
+action reviewFlashcard {
+  fn: import { reviewFlashcard } from "@src/flashcards/operations",
+  entities: [Flashcard, FlashcardReview]
+}
+//#endregion
+
 //#region Demo AI App
 route DemoAppRoute { path: "/demo-app", to: DemoAppPage }
 page DemoAppPage {

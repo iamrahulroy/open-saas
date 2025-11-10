@@ -2,7 +2,12 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from 'wasp/client/auth';
 import { useQuery } from 'wasp/client/operations';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createTranslation, getConversations, createConversationShare } from 'wasp/client/operations';
+import {
+  createTranslation,
+  getConversations,
+  createConversationShare,
+  generateFlashcardsFromMessage
+} from 'wasp/client/operations';
 import { type Conversation, type Message } from 'wasp/entities';
 
 // Language options
@@ -343,6 +348,8 @@ function ConversationCard({ conversation }: { conversation: Conversation & { mes
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [showShareToast, setShowShareToast] = useState(false);
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+  const [generatingFlashcards, setGeneratingFlashcards] = useState<Record<string, boolean>>({});
+  const [flashcardToasts, setFlashcardToasts] = useState<Record<string, boolean>>({});
 
   const firstMessage = conversation.messages[0];
   const messageCount = conversation.messages.length;
@@ -371,6 +378,23 @@ function ConversationCard({ conversation }: { conversation: Conversation & { mes
       console.error('Error creating share link:', error);
     } finally {
       setIsGeneratingLink(false);
+    }
+  };
+
+  const handleGenerateFlashcards = async (e: React.MouseEvent, messageId: string) => {
+    e.stopPropagation();
+
+    setGeneratingFlashcards({ ...generatingFlashcards, [messageId]: true });
+    try {
+      await generateFlashcardsFromMessage({ messageId });
+      setFlashcardToasts({ ...flashcardToasts, [messageId]: true });
+      setTimeout(() => {
+        setFlashcardToasts({ ...flashcardToasts, [messageId]: false });
+      }, 3000);
+    } catch (error) {
+      console.error('Error generating flashcards:', error);
+    } finally {
+      setGeneratingFlashcards({ ...generatingFlashcards, [messageId]: false });
     }
   };
 
@@ -502,7 +526,7 @@ function ConversationCard({ conversation }: { conversation: Conversation & { mes
           >
             <div className="p-6 space-y-4">
               {conversation.messages.slice(1).map((message) => (
-                <div key={message.id} className="space-y-2 p-4 bg-white rounded-xl">
+                <div key={message.id} className="space-y-2 p-4 bg-white rounded-xl relative">
                   <div className="flex items-start space-x-2">
                     <span className="text-lg">{LANGUAGES[conversation.sourceLang as 'en' | 'th'].flag}</span>
                     <p className="text-slate-700 font-medium flex-1">
@@ -515,11 +539,37 @@ function ConversationCard({ conversation }: { conversation: Conversation & { mes
                       {message.targetText}
                     </p>
                   </div>
-                  {message.audioUrl && (
-                    <button className="mt-2 px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-lg hover:bg-purple-200 transition-colors">
-                      ▶ Play Audio
+                  <div className="flex items-center gap-2 mt-2">
+                    {message.audioUrl && (
+                      <button className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-lg hover:bg-purple-200 transition-colors">
+                        ▶ Play Audio
+                      </button>
+                    )}
+                    <button
+                      onClick={(e) => handleGenerateFlashcards(e, message.id)}
+                      disabled={generatingFlashcards[message.id]}
+                      className="relative px-3 py-1 bg-fuchsia-100 text-fuchsia-700 text-xs font-medium rounded-lg hover:bg-fuchsia-200 transition-colors disabled:opacity-50"
+                    >
+                      {generatingFlashcards[message.id] ? (
+                        <span className="flex items-center gap-1">
+                          <div className="w-3 h-3 border-2 border-fuchsia-700 border-t-transparent rounded-full animate-spin"></div>
+                          Generating...
+                        </span>
+                      ) : (
+                        '🎴 Make Flashcards'
+                      )}
+                      {flashcardToasts[message.id] && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="absolute top-full left-0 mt-1 px-2 py-1 bg-green-600 text-white text-xs rounded-lg whitespace-nowrap shadow-lg z-10"
+                        >
+                          Flashcards created!
+                        </motion.div>
+                      )}
                     </button>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>
