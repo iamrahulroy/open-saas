@@ -57,15 +57,65 @@ Access at: `http://localhost:3000`
 - Waitlist page post-signup (`app/src/waitlist/WaitlistPage.tsx`)
 - Password reset flow
 
+### ✅ **EPIC 3: Translation Feature**
+- **Dashboard** (`app/src/conversations/DashboardPage.tsx`)
+  - Real-time EN↔TH translation with OpenAI gpt-4o-mini
+  - Language switcher with flag icons
+  - Conversation history with expand/collapse
+  - Audio recording with MediaRecorder API (ready for speech-to-text)
+- **Rate Limiting**
+  - 10 translations/day for free users
+  - Automatic 24-hour reset
+  - Unlimited for paid users
+- **Operations** (`app/src/conversations/operations.ts`)
+  - Translation validation (max 5000 chars)
+  - Conversation management
+  - Error handling with HttpError
+
+### ✅ **EPIC 4: Thai Friend Corrections**
+- **Magic Link Sharing** (`app/src/corrections/operations.ts`)
+  - Generate unique share tokens with 30-day expiration
+  - Copy-to-clipboard with toast notifications
+- **Public Correction Page** (`app/src/corrections/CorrectConversationPage.tsx`)
+  - No auth required - anyone with link can correct
+  - Thai/English bilingual interface
+  - Submit corrections with name, email, notes
+  - View existing corrections history
+  - Framer Motion animations
+- **Share Button** on conversation cards
+
+### ✅ **EPIC 5: Flashcard Generation**
+- **AI-Powered Generation** (`app/src/flashcards/operations.ts`)
+  - Auto-extract 2-4 key phrases from translations
+  - Word/phrase breakdown with pronunciation
+  - Cultural notes and usage tips
+  - OpenAI gpt-4o-mini integration
+- **Generate Button** on each conversation message
+- **Edit/Delete** functionality for flashcards
+
+### ✅ **EPIC 6: Spaced Repetition Study**
+- **Study Interface** (`app/src/flashcards/FlashcardsPage.tsx`)
+  - SM-2 algorithm implementation
+  - Review buttons: Again, Hard, Good, Easy
+  - Dynamic interval calculation (1 day → 6 days → exponential)
+  - Progress bar and card counter
+- **Library Mode**
+  - Browse all flashcards
+  - Navigate with Previous/Next buttons
+  - Delete unwanted cards
+- **Due Flashcards Queue**
+  - Shows up to 20 cards per session
+  - Sorted by nextReview date
+
 ### ✅ **Database Schema**
 Complete Prisma schema with models:
-- `User` (with onboarding/waitlist status)
+- `User` (with onboarding/waitlist status + translation limits)
 - `EmailSignup` (pre-auth signups)
 - `Conversation` (translation sessions)
 - `Message` (individual translations)
 - `Correction` (Thai friend feedback)
 - `ConversationShare` (magic links)
-- `Flashcard` (with SM-2 spaced repetition)
+- `Flashcard` (with SM-2 spaced repetition fields)
 - `FlashcardReview` (review history)
 
 ---
@@ -85,11 +135,13 @@ Complete Prisma schema with models:
 Create `app/.env.server`:
 ```bash
 DATABASE_URL="postgresql://..."
-OPENAI_API_KEY="sk-..."           # For translations (future)
-CLOUDFLARE_R2_ACCESS_KEY="..."    # For audio storage (future)
+OPENAI_API_KEY="sk-..."           # Required for translations & flashcard generation
+CLOUDFLARE_R2_ACCESS_KEY="..."    # For audio storage (future - TTS integration)
 CLOUDFLARE_R2_SECRET_KEY="..."
 CLOUDFLARE_R2_BUCKET="..."
 ```
+
+**Note**: The app uses OpenAI's `gpt-4o-mini` model for cost-effective translations (~$0.15 per 1M input tokens).
 
 ---
 
@@ -180,15 +232,30 @@ wasp test
 ### **Immediate (Week 1-2)**
 1. Generate PWA icons (72px → 512px)
 2. Create OG image (`public/og-image.png`)
-3. Test on iOS/Android devices
-4. Deploy to production
+3. Add speech-to-text for audio recording
+4. Integrate TTS (Google/ElevenLabs) for audio generation
+5. Set up Cloudflare R2 for audio storage
+6. Test on iOS/Android devices
+7. Deploy to production (Railway/Fly.io)
 
-### **EPIC 3-7 (Next Phases)**
-- Translation engine (OpenAI + Vercel AI SDK)
-- Audio generation (Google TTS → R2 storage)
-- Thai friend corrections (magic links)
-- Flashcard generation + SM-2 reviews
-- Polar.sh payments integration
+### **EPIC 7: Payments** ⏳
+- Polar.sh checkout integration
+- Subscription management (free → paid)
+- Webhook handling for payment events
+- Upgrade flow from dashboard
+
+### **EPIC 8: Admin Dashboard** ⏳
+- User metrics (MRR, conversion rate, churn)
+- Translation usage analytics
+- Email signup viewer
+- System health monitoring
+
+### **Future Enhancements**
+- Email notifications for corrections
+- More language pairs (beyond EN-TH)
+- Voice cloning for personalized audio
+- Community correction marketplace
+- Mobile app (React Native)
 
 ---
 
