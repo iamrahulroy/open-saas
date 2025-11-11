@@ -257,6 +257,62 @@ action reviewFlashcard {
 }
 //#endregion
 
+//#region ThaiCopilot - Payments
+route PricingRoute { path: "/pricing", to: PricingPage }
+page PricingPage {
+  authRequired: true,
+  component: import PricingPage from "@src/payments/PricingPage"
+}
+
+action createCheckoutSession {
+  fn: import { createCheckoutSession } from "@src/payments/operations",
+  entities: [User]
+}
+
+action handlePolarWebhook {
+  fn: import { handlePolarWebhook } from "@src/payments/operations",
+  entities: [User]
+}
+
+action cancelSubscription {
+  fn: import { cancelSubscription } from "@src/payments/operations",
+  entities: [User]
+}
+
+query getSubscriptionStatus {
+  fn: import { getSubscriptionStatus } from "@src/payments/operations",
+  entities: [User]
+}
+//#endregion
+
+//#region ThaiCopilot - Admin Dashboard
+route AdminDashboardRoute { path: "/admin", to: AdminDashboardPage }
+page AdminDashboardPage {
+  authRequired: true,
+  component: import AdminDashboardPage from "@src/admin/AdminDashboardPage"
+}
+
+query getAdminStats {
+  fn: import { getAdminStats } from "@src/admin/operations",
+  entities: [User, EmailSignup, Conversation, Message, Flashcard]
+}
+
+query getAllEmailSignups {
+  fn: import { getAllEmailSignups } from "@src/admin/operations",
+  entities: [EmailSignup]
+}
+
+query getUserAnalytics {
+  fn: import { getUserAnalytics } from "@src/admin/operations",
+  entities: [User, EmailSignup]
+}
+
+query getTranslationAnalytics {
+  fn: import { getTranslationAnalytics } from "@src/admin/operations",
+  entities: [Message, Conversation, User]
+}
+//#endregion
+
 //#region Demo AI App
 route DemoAppRoute { path: "/demo-app", to: DemoAppPage }
 page DemoAppPage {

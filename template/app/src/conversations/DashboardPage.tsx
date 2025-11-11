@@ -148,33 +148,46 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Language Switcher */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleSwapLanguages}
-            className="flex items-center space-x-2 px-4 py-2 bg-white rounded-xl border-2 border-purple-200 hover:border-purple-400 transition-all shadow-sm"
-          >
-            <span className="text-lg">{LANGUAGES[sourceLang].flag}</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 text-purple-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          {/* Navigation */}
+          <div className="flex items-center gap-3">
+            {/* Language Switcher */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleSwapLanguages}
+              className="flex items-center space-x-2 px-4 py-2 bg-white rounded-xl border-2 border-purple-200 hover:border-purple-400 transition-all shadow-sm"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-            </svg>
-            <span className="text-lg">{LANGUAGES[targetLang].flag}</span>
-          </motion.button>
+              <span className="text-lg">{LANGUAGES[sourceLang].flag}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 text-purple-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+              <span className="text-lg">{LANGUAGES[targetLang].flag}</span>
+            </motion.button>
 
-          {/* Account Link */}
-          <a
-            href="/account"
-            className="px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors"
-          >
-            Account
-          </a>
+            {/* Upgrade Button (Free users only) */}
+            {user?.subscriptionStatus === 'free' && (
+              <a
+                href="/pricing"
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all"
+              >
+                Upgrade
+              </a>
+            )}
+
+            {/* Account Link */}
+            <a
+              href="/account"
+              className="px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors"
+            >
+              Account
+            </a>
+          </div>
         </div>
       </motion.header>
 
