@@ -107,6 +107,35 @@ Access at: `http://localhost:3000`
   - Shows up to 20 cards per session
   - Sorted by nextReview date
 
+### ✅ **EPIC 7: Payments (Polar.sh)**
+- **Checkout Integration** (`app/src/payments/operations.ts`)
+  - Create checkout sessions with Polar.sh API
+  - Handle subscription webhooks (completed, cancelled, updated)
+  - Automatic user upgrade/downgrade
+- **Pricing Page** (`app/src/payments/PricingPage.tsx`)
+  - Free plan: 10 translations/day
+  - Pro plan: $19/month unlimited
+  - Cancel subscription functionality
+  - FAQ section
+- **Upgrade Flow**
+  - Upgrade button in dashboard for free users
+  - Subscription status display
+  - Seamless payment redirect
+
+### ✅ **EPIC 8: Admin Dashboard**
+- **Admin Analytics** (`app/src/admin/AdminDashboardPage.tsx`)
+  - Key metrics: Total users, MRR, conversion rate
+  - User growth charts (last 30 days)
+  - Signup sources breakdown (UTM tracking)
+  - Translation activity analytics
+  - Top 10 users by translation count
+  - Recent email signups table (100 most recent)
+- **Admin Operations** (`app/src/admin/operations.ts`)
+  - Admin access control via ADMIN_EMAILS env var
+  - Real-time stats aggregation
+  - User analytics with daily breakdowns
+  - Translation usage tracking
+
 ### ✅ **Database Schema**
 Complete Prisma schema with models:
 - `User` (with onboarding/waitlist status + translation limits)
@@ -134,14 +163,29 @@ Complete Prisma schema with models:
 
 Create `app/.env.server`:
 ```bash
+# Database
 DATABASE_URL="postgresql://..."
-OPENAI_API_KEY="sk-..."           # Required for translations & flashcard generation
-CLOUDFLARE_R2_ACCESS_KEY="..."    # For audio storage (future - TTS integration)
+
+# OpenAI (Required)
+OPENAI_API_KEY="sk-..."           # For translations & flashcard generation
+
+# Payments (Polar.sh)
+POLAR_API_KEY="..."               # Your Polar.sh API key
+POLAR_PRODUCT_ID="..."            # Your product ID from Polar dashboard
+
+# Admin Access
+ADMIN_EMAILS="admin@example.com,owner@example.com"  # Comma-separated admin emails
+
+# Audio Storage (Future)
+CLOUDFLARE_R2_ACCESS_KEY="..."    # For TTS audio storage
 CLOUDFLARE_R2_SECRET_KEY="..."
 CLOUDFLARE_R2_BUCKET="..."
 ```
 
-**Note**: The app uses OpenAI's `gpt-4o-mini` model for cost-effective translations (~$0.15 per 1M input tokens).
+**Cost Notes**:
+- OpenAI gpt-4o-mini: ~$0.15 per 1M input tokens, ~$0.60 per 1M output tokens
+- Polar.sh: 5% + payment processing fees
+- PostgreSQL: Free tier sufficient for MVP (Railway/Fly.io)
 
 ---
 
@@ -229,33 +273,44 @@ wasp test
 
 ## 🛣️ Roadmap (Next Steps)
 
-### **Immediate (Week 1-2)**
-1. Generate PWA icons (72px → 512px)
-2. Create OG image (`public/og-image.png`)
-3. Add speech-to-text for audio recording
-4. Integrate TTS (Google/ElevenLabs) for audio generation
-5. Set up Cloudflare R2 for audio storage
-6. Test on iOS/Android devices
-7. Deploy to production (Railway/Fly.io)
+### **✅ All Core Features Complete!**
+All 8 EPICs are now fully implemented and ready for production deployment.
 
-### **EPIC 7: Payments** ⏳
-- Polar.sh checkout integration
-- Subscription management (free → paid)
-- Webhook handling for payment events
-- Upgrade flow from dashboard
+### **Immediate Pre-Launch (Week 1)**
+1. **Set up Polar.sh account**
+   - Create product for $19/month subscription
+   - Get API key and Product ID
+   - Configure webhook endpoint
+2. **Generate PWA assets**
+   - Icons (72px → 512px)
+   - OG image (1200x630px)
+   - Splash screens
+3. **Testing**
+   - End-to-end user flow (signup → translate → flashcard → upgrade)
+   - Payment flow (test mode)
+   - Admin dashboard access
+   - Mobile responsive design
+4. **Deploy to production**
+   - Railway or Fly.io
+   - Configure environment variables
+   - Set up domain + SSL
+   - Test webhook delivery
 
-### **EPIC 8: Admin Dashboard** ⏳
-- User metrics (MRR, conversion rate, churn)
-- Translation usage analytics
-- Email signup viewer
-- System health monitoring
-
-### **Future Enhancements**
-- Email notifications for corrections
-- More language pairs (beyond EN-TH)
-- Voice cloning for personalized audio
-- Community correction marketplace
-- Mobile app (React Native)
+### **Post-Launch Enhancements**
+- **Audio Features**
+  - Speech-to-text for voice input (OpenAI Whisper)
+  - TTS for pronunciation (Google/ElevenLabs)
+  - Cloudflare R2 audio storage
+- **Email Notifications**
+  - New correction alerts
+  - Subscription updates
+  - Daily study reminders
+- **Advanced Features**
+  - More language pairs (beyond EN-TH)
+  - Community correction marketplace
+  - Voice cloning for personalized audio
+  - Mobile app (React Native)
+  - Streak tracking and gamification
 
 ---
 
